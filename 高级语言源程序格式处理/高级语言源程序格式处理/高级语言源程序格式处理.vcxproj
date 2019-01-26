@@ -118,7 +118,7 @@
     <ClInclude Include="lexical.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EXP.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="lexical.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

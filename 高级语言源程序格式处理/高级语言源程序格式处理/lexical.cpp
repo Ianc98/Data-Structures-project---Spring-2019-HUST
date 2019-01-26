@@ -74,8 +74,15 @@ int gettoken(FILE * fp)
 		if (c == '=') return EQ;
 		ungetc(c, fp);
 		return ASSIGN;
-		case
+	case '+':
+		c = fgetc(fp);
+		if (c == '+') return PLUSPLUS;
+		ungetc(c, fp);
+		return PLUS;
+	case ';':
+		return SEMI;
 	default:
-		break;
+		if (feof(fp)) return EOF;
+		else return ERROR_TOKEN;		//±¨´í£»´íÎó·ûºÅ
 	}
 }
