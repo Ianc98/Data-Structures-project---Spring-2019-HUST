@@ -104,6 +104,20 @@ int gettoken(FILE * fp)
 			ungetc(c, fp);
 			return ERROR_TOKEN;
 		}
+	case '\'':
+	case '"':
+		do
+		{
+			if (c == '\n')
+				if (token_text[i - 1] == '\\')
+					num++;
+				else return ERROR_TOKEN;
+			token_text[i] = c;
+			i++;
+		} while ((c=fgetc(fp))!='"');
+		token_text[i++] = c;
+		token_text[i] = 0;
+		return STRING_CONST;
 	case '=':
 		c = fgetc(fp);
 		if (c == '=') return EQ;

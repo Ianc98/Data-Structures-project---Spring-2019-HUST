@@ -28,6 +28,9 @@ int main(void)
 		case FLOAT_CONST:
 			printf("	浮点型常量		%s\n", token_text);
 			break;
+		case STRING_CONST:
+			printf("	字符串常量		%s\n", token_text);
+			break;
 		case EQ:
 			printf("	等号			==\n");
 			break;
