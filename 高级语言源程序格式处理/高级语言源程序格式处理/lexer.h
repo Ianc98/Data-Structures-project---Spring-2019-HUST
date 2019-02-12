@@ -37,6 +37,6 @@ extern int num;						//行数计数器，记录当前已分析到源代码的第几行
 extern char token_text[MAXLEN];		//存放单词值的字符串
 extern keyword HashKey[25][11];		//存放关键字及其标识码的Hash表
 
-token_kind gettoken(FILE * fp);
+int gettoken(FILE * fp);
 
 #endif // !_LEXER_H

@@ -8,11 +8,13 @@
 #define _PARSER_H
 
 #include<stdio.h>
+#include"tree.h"
 
 typedef int Status;
 
-Status program(FILE * fp);
-Status ExtDefList(FILE * fp);
+CTreePtr program(FILE * fp);
+CTreePtr ExtDefList(FILE * fp);
+CTreePtr ExtDef(FILE * fp);
 
 #endif // !_PARSER_H
 

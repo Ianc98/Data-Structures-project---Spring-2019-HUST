@@ -10,6 +10,8 @@
 #define _TREE_H
 
 #include<stdio.h>
+#include<stdlib.h>
+#include<malloc.h>
 
 #define MAX_TREE_SIZE 100
 #define OK 1
@@ -18,7 +20,7 @@
 #define OVERFLOW -2
 
 typedef int Status;
-typedef int TElemType;
+typedef char * TElemType;
 // - - - - - 树的孩子链表存储表示 - - - - -
 typedef struct CTNode		//孩子结点
 {
@@ -34,10 +36,10 @@ typedef struct
 {
 	CTBox nodes[MAX_TREE_SIZE];
 	int n, r;				//结点数和根的位置
-}CTree;
+}CTree, *CTreePtr;
 
-Status InitTree(CTree & T);
-Status CreateTree(CTree & T, TElemType);
+Status InitTree(CTreePtr & T);
+Status InsertChild(CTreePtr & T, int p, int i, CTreePtr c);
 
 #endif // !_TREE_H
 
