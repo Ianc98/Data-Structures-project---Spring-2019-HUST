@@ -41,7 +41,7 @@ keyword HashKey[25][11] =
 *传入参数：源代码文件指针fp
 *返回值：单词标识码
 **********************************************/
-int gettoken(FILE * fp)
+token_kind gettoken(FILE * fp)
 {
 	char c;							//用于读取字符
 	int i = 0; int j = 0;

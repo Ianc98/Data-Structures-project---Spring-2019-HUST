@@ -117,13 +117,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="lexer.h" />
+    <ClInclude Include="parser.h" />
     <ClInclude Include="queue.h" />
+    <ClInclude Include="tree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="queue.cpp" />
+    <ClCompile Include="tree.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
