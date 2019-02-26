@@ -12,12 +12,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<malloc.h>
+#include<stack>
 
 #define MAX_TREE_SIZE 100
 #define OK 1
 #define ERROR 0
-#define INFEASIBLE -1
 #define OVERFLOW -2
+#define INFEASIBLE -1
 
 typedef int Status;
 typedef char * TElemType;
@@ -30,16 +31,19 @@ typedef struct CTNode		//孩子结点
 typedef struct
 {
 	TElemType data;
+	int indent;				//该结点的孩子要增加的缩进量
 	ChildPtr firstchild;	//孩子链表头结点
 }CTBox;
 typedef struct
 {
 	CTBox nodes[MAX_TREE_SIZE];
 	int n, r;				//结点数和根的位置
-}CTree, *CTreePtr;
+}CTree;
 
-Status InitTree(CTreePtr & T);
-Status InsertChild(CTreePtr & T, int p, int i, CTreePtr c);
+Status InitTree(CTree & T);
+Status InsertChild(CTree & T, int p, int i, CTree c);
+Status GetParent(CTree T, int child, int & parent);
+Status TraverseTree(CTree T, Status(*visit)(TElemType, int));
 
 #endif // !_TREE_H
 

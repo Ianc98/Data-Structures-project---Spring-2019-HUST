@@ -1,5 +1,8 @@
 #include"lexer.h"
+#include"parser.h"
 #include"queue.h"
+#include"tree.h"
+#include"Print_CFile.h"
 
 int i = 1;						//标记错误序号
 
@@ -15,6 +18,7 @@ int main(void)
 	char filename[30]; FILE * fp;
 	int status; int ch = 1;
 	LinkQueue Q;				//构建一个队列，用于存放错误行
+	CTree T;
 	InitQueue(Q);
 ChooseFilename:
 	system("cls");
@@ -27,7 +31,8 @@ ChooseFilename:
 		printf("高级语言源程序格式处理菜单\n");
 		printf("1. 词法分析\n");
 		printf("2. 语法分析\n");
-		printf("3. 重新选择文件\n");
+		printf("3. 格式化源文件\n");
+		printf("4. 重新选择文件\n");
 		printf("0. 退出程序\n");
 		printf("\n");
 		printf("请进行选择：");
@@ -156,7 +161,19 @@ ChooseFilename:
 			printf("\n按任意键继续...");
 			getchar(); getchar();
 			break;
+		case 2:
+			program(fp, T);
+			TraverseTree(T, PrintTree);
+			printf("\n按任意键继续...\n");
+			getchar(); getchar();
+			break;
 		case 3:
+			Print_CFile(fp,filename);
+			printf("成功生成文件filename_std！已保存至当前路径\n");
+			printf("按任意键继续...\n");
+			getchar(); getchar();
+			break;
+		case 4:
 			goto ChooseFilename;
 		default:
 			return 0;

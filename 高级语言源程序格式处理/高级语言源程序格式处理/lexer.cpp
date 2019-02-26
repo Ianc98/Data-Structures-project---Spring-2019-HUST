@@ -1,5 +1,7 @@
 #include "lexer.h"
 
+//宏定义的处理？
+
 int num = 1;
 char token_text[MAXLEN];
 keyword HashKey[25][11] = 
@@ -48,7 +50,7 @@ int gettoken(FILE * fp)
 
 start:
 	/***********************过滤空白**************************/
-	while ((c = fgetc(fp)) == ' ' || c == '\n' || c == '\t' || c == '\0')
+	while ((c = fgetc(fp)) == ' ' || c == '\n' || c == '\t')
 	{
 		if (c == '\n') num++;						//如果读取到回车符，行数计数器加1
 	}
@@ -330,7 +332,7 @@ start:
 		return MOD;
 	case '>':
 		token_text[i++] = '>';
-		if (c = fgetc(fp) == '=')
+		if ((c = fgetc(fp)) == '=')
 		{
 			token_text[i++] = c;
 			token_text[i] = 0;
@@ -381,15 +383,13 @@ start:
 		return LBS;
 	case '}':
 		strcpy(token_text, "}");
-		return LBS;
+		return RBS;
 	case ';':
+		strcpy(token_text, ";");
 		return SEMI;
 	case ',':
+		strcpy(token_text, ",");
 		return COMMA;
-	case '#':
-		while ((c = fgetc(fp)) != '\n'&&c != EOF);
-		if (c == '\n') num++;
-		goto start;
 	default:
 		if (feof(fp)) return EOF;
 		else return ERROR_TOKEN;		//报错；错误符号
