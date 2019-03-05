@@ -2,17 +2,17 @@
 
 
 
-int a; int group[30];
+int           a; int	group[30];
 double b;
 char _string;	//×¢ÊÍ
-double func(int a, double b)
+		double func(int a, double b)
 {
 int i; int a;
 int group[30];
 b = 9.f; b = .67e2L;
 a = 1; i=0xb21;
 a = 3ul; a = 027;
-_d = 'a';
+_string = 'a';
 a = 1 + b;
 b = 2 * b / a;
 a = i % a;

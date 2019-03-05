@@ -2,10 +2,10 @@
 #include<malloc.h>
 #define OK 1
 #define ERROR 0
-int a; int group[30];
+int           a; int	group[30];
 double b;
 char _string;	//×¢ÊÍ
-double func(int a, double b)
+		double func(int a, double b)
 {
 int i; int a;
 int group[30];

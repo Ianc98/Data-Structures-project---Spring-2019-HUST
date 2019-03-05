@@ -2,9 +2,9 @@
 #include<malloc.h>
 #define OK 1
 #define ERROR 0
-int a; int group[30];
+int a; intgroup[30];
 double b;
-char _string;	//×¢ÊÍ
+char _string;//×¢ÊÍ
 double func(int a, double b)
 {
 	int i; int a;
@@ -39,6 +39,6 @@ double func(int a, double b)
 		a = a + 1;
 	for (; a > 2; );
 	/*×¢ÊÍ*/
-	return a + b;
+	return OK;
 }
 float a,b;
