@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include<malloc.h>
+#define OK 1
+#define ERROR 0
+int a; int group[30];
+double b;
+char _string;	//×¢ÊÍ
+double func(int a, double b)
+{
+	int i; int a;
+	int group[30];
+	b = 9.f; b = .67e2L;
+	a = 1; i=0xb21;
+	a = 3ul; a = 027;
+	_string = 'a';
+	a = 1 + b;
+	b = 2 * b / a;
+	a = i % a;
+	while(((a == 1) && (a > b)) || a > b)
+	{
+		if (a == b)
+			a = a + b;
+		else
+		{
+			if (a > b)
+				if (a > b)
+				{
+					a = a + 1;
+				}
+			break;
+		}
+	}
+	do
+	{
+		a = a + 1;
+		continue;
+	} while (1);
+	for(i = 0; i < a; i = i + 1)
+		a = a + 1;
+	for (; a > 2; );
+	/*×¢ÊÍ*/
+	return a + b;
+}
+float a,b;

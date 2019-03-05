@@ -119,23 +119,29 @@
   <ItemGroup>
     <ClInclude Include="lexer.h" />
     <ClInclude Include="parser.h" />
+    <ClInclude Include="pre_process.h" />
     <ClInclude Include="Print_CFile.h" />
     <ClInclude Include="queue.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="tree.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Exp3.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="lexer.cpp" />
     <ClCompile Include="parser.cpp" />
+    <ClCompile Include="pre_process.cpp" />
     <ClCompile Include="Print_CFile.cpp" />
     <ClCompile Include="queue.cpp" />
     <ClCompile Include="stack.cpp" />
     <ClCompile Include="tree.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Exp2.txt" />
+    <None Include="Exp" />
+    <None Include="Exp1" />
+    <None Include="Exp2" />
+    <None Include="Exp3" />
+    <None Include="mid_cpp" />
+    <None Include="print_cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

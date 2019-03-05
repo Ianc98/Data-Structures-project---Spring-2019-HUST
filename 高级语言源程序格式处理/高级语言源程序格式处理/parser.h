@@ -8,14 +8,21 @@
 #define _PARSER_H
 
 #include<stdio.h>
+#include<queue>
 #include"lexer.h"
 #include"queue.h"
 #include"tree.h"
 #define BEGIN_END -1
-#define MAX_OP 10
-
+#define MAX_OP 13
+using namespace std;
 typedef int Status;
-
+struct print						//一个打印格式单元
+{
+	int indent;						//记录缩进值
+	int num;						//记录缩进的行号
+};
+extern int indent0;					//记录源代码的缩进值
+extern queue<print> printList;		//存储各个打印格式单元
 extern int w;						//存取读到的单词
 extern char kind[MAXLEN];			//存取类型说明符
 extern char tokenText0[MAXLEN];		//存取变量标识符

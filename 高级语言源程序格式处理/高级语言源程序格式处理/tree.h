@@ -14,10 +14,9 @@
 #include<malloc.h>
 #include<stack>
 
-#define MAX_TREE_SIZE 100
+#define MAX_TREE_SIZE 1000
 #define OK 1
 #define ERROR 0
-#define OVERFLOW -2
 #define INFEASIBLE -1
 
 typedef int Status;

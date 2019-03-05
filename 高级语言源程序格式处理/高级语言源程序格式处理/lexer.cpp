@@ -1,7 +1,5 @@
 #include "lexer.h"
 
-//宏定义的处理？
-
 int num = 1;
 char token_text[MAXLEN];
 keyword HashKey[25][11] = 
@@ -47,7 +45,6 @@ int gettoken(FILE * fp)
 {
 	char c;							//用于读取字符
 	int i = 0; int j = 0;
-
 start:
 	/***********************过滤空白**************************/
 	while ((c = fgetc(fp)) == ' ' || c == '\n' || c == '\t')
@@ -122,6 +119,7 @@ start:
 			else if (c == 'e' || c == 'E')
 			{
 			Status19:
+				token_text[i++] = c;
 				if ((c = fgetc(fp)) >= '0'&&c <= '9')
 					goto Status10;
 				else goto Status17;
@@ -156,6 +154,8 @@ start:
 				token_text[i] = 0;
 				return LONG_DOUBLE_CONST;
 			}
+			else if (c == 'e' || c == 'E')
+				goto Status19;
 			else
 			{
 				ungetc(c, fp);
@@ -168,6 +168,8 @@ start:
 			goto Status8;
 		else if (c == 'e' || c == 'E')
 			goto Status19;
+		else if ((c >= 'a'&&c <= 'z') || (c >= 'A'&&c <= 'Z') || c == '_')
+			goto Status17;
 		else goto Status9;
 	}
 
@@ -175,7 +177,7 @@ start:
 	{
 		token_text[i] = c;
 		i++;
-		if (c = fgetc(fp) == 'x' || c == 'X')
+		if ((c = fgetc(fp)) == 'x' || c == 'X')
 		{
 			token_text[i] = c;
 			i++;
@@ -211,6 +213,8 @@ start:
 			goto Status8;
 		else if (c == 'e' || c == 'E')
 			goto Status19;
+		else if ((c >= 'a'&&c <= 'z') || (c >= 'A'&&c <= 'Z') || c == '_')
+			goto Status17;
 		else goto Status9;
 	}
 
@@ -218,6 +222,7 @@ start:
 	switch (c)
 	{
 	case '.':
+		token_text[i++] = c;
 		if ((c = fgetc(fp)) >= '0'&&c <= '9')
 			goto Status10;
 		else goto Status17;
@@ -237,6 +242,7 @@ start:
 			}
 			if (c == '\n' || c == EOF)
 				goto Status17;
+			token_text[i++] = c;
 		}
 		token_text[i++] = c;
 		token_text[i] = 0;
@@ -268,6 +274,7 @@ start:
 		if (c == '=')
 		{
 			token_text[i++] = c;
+			token_text[i] = 0;
 			return COMPARISON;
 		}
 		token_text[i] = 0;
@@ -293,10 +300,8 @@ start:
 		strcpy(token_text, "*");
 		return MULTIPLY;
 	case '/':
-		if (c = fgetc(fp) == '/')
+		if ((c = fgetc(fp)) == '/')
 		{
-			do
-				c = fgetc(fp);
 			while ((c = fgetc(fp)) != '\n'&&c != EOF);
 			if (c == '\n')
 			{
@@ -346,7 +351,7 @@ start:
 		}
 	case '<':
 		token_text[i++] = '<';
-		if (c = fgetc(fp) == '=')
+		if ((c = fgetc(fp)) == '=')
 		{
 			token_text[i++] = c;
 			token_text[i] = 0;
@@ -360,11 +365,17 @@ start:
 		}
 	case '&':
 		if (c = fgetc(fp) == '&')
+		{
+			strcpy(token_text, "&&");
 			return AND;
+		}
 		else goto Status17;
 	case '|':
 		if (c = fgetc(fp) == '|')
+		{
+			strcpy(token_text, "||");
 			return OR;
+		}
 		else goto Status17;
 	case '(':
 		strcpy(token_text, "(");
@@ -391,7 +402,7 @@ start:
 		strcpy(token_text, ",");
 		return COMMA;
 	default:
-		if (feof(fp)) return EOF;
+		if (c == EOF) return EOF;
 		else return ERROR_TOKEN;		//报错；错误符号
 	}
 }

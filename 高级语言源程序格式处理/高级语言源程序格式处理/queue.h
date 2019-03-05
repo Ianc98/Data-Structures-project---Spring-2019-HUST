@@ -12,11 +12,11 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<malloc.h>
+#include<stack>
 
 #define OK 1
 #define ERROR 0
 #define INFEASIBLE -1
-#define OVERFLOW -2
 
 typedef int QElemType;	//定义元素类型
 typedef int Status;

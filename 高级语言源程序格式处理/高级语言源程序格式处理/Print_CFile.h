@@ -13,5 +13,5 @@
 #define ERROR 0
 #define OK 1
 typedef int Status;
-Status Print_CFile(FILE * fp, char filename[30]);
+Status Print_CFile(FILE * fp);
 #endif // !_PRINT_CFILE_H

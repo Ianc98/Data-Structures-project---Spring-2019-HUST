@@ -33,10 +33,10 @@
     <ClCompile Include="stack.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Exp3.cpp">
-      <Filter>资源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Print_CFile.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pre_process.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,10 +59,28 @@
     <ClInclude Include="Print_CFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="pre_process.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Exp2.txt">
+    <None Include="Exp3">
       <Filter>资源文件</Filter>
-    </Text>
+    </None>
+    <None Include="Exp2">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="Exp1">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="mid_cpp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="print_cpp">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="Exp">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

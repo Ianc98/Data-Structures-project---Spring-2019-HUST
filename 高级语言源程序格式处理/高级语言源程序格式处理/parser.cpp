@@ -3,13 +3,11 @@
 #include"queue.h"
 #include"tree.h"
 
-//是否在每次报错前都要销毁树？
-//最少的InitTree?
-//用错误列表报错？
-
 int w;
 char kind[MAXLEN];
 char tokenText0[MAXLEN];
+int indent0 = 0;
+queue<print> printList;
 
 /***********************************************************
 *函数名称：program
@@ -20,7 +18,8 @@ char tokenText0[MAXLEN];
 Status program(FILE * fp, CTree &T)
 {
 	CTree c;
-	InitTree(T);
+	print elem = { indent0,num };
+	printList.push(elem);
 	w = gettoken(fp);
 	if (!ExtDefList(fp, c)) return ERROR;
 	T.n = 1; T.r = 0;
@@ -28,7 +27,7 @@ Status program(FILE * fp, CTree &T)
 	strcpy(T.nodes[0].data, "程序");		//定义一个结点作为空树的根
 	T.nodes[0].indent = 0;
 	T.nodes[0].firstchild = NULL;
-	if (!InsertChild(T, T.r, 1, c)) return ERROR;
+	InsertChild(T, T.r, 1, c);
 	return OK;
 }
 
@@ -48,7 +47,7 @@ Status ExtDefList(FILE * fp, CTree &T)
 	T.nodes[0].indent = 0;
 	T.nodes[0].firstchild = NULL;
 	if (!ExtDef(fp, c)) return ERROR;
-	if (!InsertChild(T, T.r, 1, c)) return ERROR;
+	InsertChild(T, T.r, 1, c);
 	p = ExtDefList(fp, c);
 	if (p == OK) InsertChild(T, T.r, 2, c);
 	if (!p) return ERROR;
@@ -64,7 +63,6 @@ Status ExtDefList(FILE * fp, CTree &T)
 Status ExtDef(FILE * fp, CTree &T)
 {	
 	Status p;
-	InitTree(T);
 	if (w != INT && w != LONG && w != SHORT && w != SIGNED && w != UNSIGNED &&
 		w != FLOAT && w != DOUBLE && w != CHAR) return ERROR;
 	strcpy(kind, token_text);			//保存类型说明符
@@ -87,7 +85,6 @@ Status ExtDef(FILE * fp, CTree &T)
 Status ExtVarDef(FILE * fp, CTree & T)
 {
 	CTree c; CTree p;
-	InitTree(T); InitTree(c);
 	T.n = 1; T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("外部变量定义：")+1)*sizeof(char));
 	strcpy(T.nodes[0].data, "外部变量定义：");
@@ -114,28 +111,51 @@ Status ExtVarDef(FILE * fp, CTree & T)
 Status ExtVarList(FILE * fp, CTree & T)
 {//初始时，tokenText0保存了第一个变量名
 	CTree c; CTree t;
-	InitTree(T); InitTree(c);
 	T.n = 1; T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("外部变量序列") + 1) * sizeof(char));
 	strcpy(T.nodes[0].data, "外部变量序列");
 	T.nodes[0].indent = 0;
 	T.nodes[0].firstchild = NULL;				//生成外部变量序列结点
-	c.n = 1; c.r = 0;
-	c.nodes[0].data = (char *)malloc((strlen(tokenText0) + strlen("ID: ") + 1) * sizeof(char));
-	strcpy(c.nodes[0].data, "ID: ");
-	strcat(c.nodes[0].data, tokenText0);
-	c.nodes[0].indent = 1;
-	c.nodes[0].firstchild = NULL;
+	if (w == LBT)
+	{
+		strcat(tokenText0, "[");
+		if ((w = gettoken(fp)) == INT_CONST)
+		{
+			strcat(tokenText0, token_text);
+			if ((w = gettoken(fp)) == RBT)
+			{
+				strcat(tokenText0, "]");
+				c.n = 1; c.r = 0;
+				c.nodes[0].data = (char *)malloc((strlen(tokenText0) + strlen("Array: ") + 1) * sizeof(char));
+				strcpy(c.nodes[0].data, "Array: ");
+				strcat(c.nodes[0].data, tokenText0);
+				c.nodes[0].indent = 1;
+				c.nodes[0].firstchild = NULL;
+				w = gettoken(fp);
+			}
+			else return ERROR;
+		}
+		else return ERROR;
+	}
+	else
+	{
+		c.n = 1; c.r = 0;
+		c.nodes[0].data = (char *)malloc((strlen(tokenText0) + strlen("ID: ") + 1) * sizeof(char));
+		strcpy(c.nodes[0].data, "ID: ");
+		strcat(c.nodes[0].data, tokenText0);
+		c.nodes[0].indent = 1;
+		c.nodes[0].firstchild = NULL;
+	}
 	if (!InsertChild(T, T.r, 1, c))	return ERROR;//tokenText0作为root的第一个孩子
 	if (w != COMMA && w != SEMI) return ERROR;
-	//考虑函数初始化的情况？
 	if (w == SEMI)								//如果标识符后是分号，直接结束
 	{
 		w = gettoken(fp);
 		return OK;
 	}
 	w = gettoken(fp);
-	if(w!=IDENT) return ERROR;					//否则后面应当还是标识符
+	if (w != IDENT) return ERROR;
+	//否则后面应当还是标识符
 	strcpy(tokenText0, token_text);
 	w = gettoken(fp);
 	if (!ExtVarList(fp, t)) return ERROR;
@@ -152,8 +172,6 @@ Status ExtVarList(FILE * fp, CTree & T)
 Status funcDef(FILE * fp, CTree & T)
 {
 	CTree c; CTree p; CTree q; CTree f; CTree s;
-	InitTree(T); InitTree(c); InitTree(p); InitTree(q);
-	InitTree(f); InitTree(s);
 	T.n = 1; T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("函数定义：") + 1) * sizeof(char));
 	strcpy(T.nodes[0].data, "函数定义：");
@@ -215,7 +233,6 @@ Status funcDef(FILE * fp, CTree & T)
 Status ParameterList(FILE * fp, CTree & T)
 {
 	CTree c;
-	InitTree(T); InitTree(c);
 	T.n = 1; T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("形参序列") + 1) * sizeof(char));
 	strcpy(T.nodes[0].data, "形参序列");
@@ -279,7 +296,7 @@ Status CompStat(FILE * fp, CTree & T)
 {
 	CTree c; CTree p;
 	Status status;
-	InitTree(T);
+	print elem;
 	T.n = 1; T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("复合语句：")+1)*sizeof(char));
 	strcpy(T.nodes[0].data, "复合语句：");
@@ -287,12 +304,13 @@ Status CompStat(FILE * fp, CTree & T)
 	T.nodes[0].firstchild = NULL;		//生成复合语句结点
 	//注意其中局部变量说明和语句序列都可以为空
 	w = gettoken(fp);
+	elem = { ++indent0,num };
+	printList.push(elem);
 	if (w == INT || w == LONG || w == SHORT || w == SIGNED || w == UNSIGNED
-		|| w == FLOAT || w == DOUBLE || w != CHAR)
+		|| w == FLOAT || w == DOUBLE || w == CHAR)
 	{
 		if (!LocVarList(fp, c)) return ERROR;
 		if(!InsertChild(T,T.r,1,c)) return ERROR;
-		w = gettoken(fp);
 		status = StatList(fp, p);
 		if (!status) return ERROR;
 		if(status==OK)
@@ -303,8 +321,10 @@ Status CompStat(FILE * fp, CTree & T)
 		status = StatList(fp, p);
 		if (!status) return ERROR;
 		if (status == OK)
-			if (!InsertChild(T, T.r, 2, p)) return ERROR;
+			if (!InsertChild(T, T.r, 1, p)) return ERROR;
 	}
+	elem = { --indent0,num };
+	printList.push(elem);
 	if (w != RBS) return ERROR;
 	w = gettoken(fp);
 	return OK;
@@ -323,7 +343,6 @@ Status LocVarList(FILE * fp, CTree & T)
 		w != FLOAT && w != DOUBLE && w != CHAR)
 		return INFEASIBLE;						
 	//读到的后继单词不为类型说明符时，变量定义序列结束
-	InitTree(T);
 	T.n = 1;  T.r = 0;
 	T.nodes[0].data = (char *)malloc((strlen("局部变量定义序列") + 1) * sizeof(char));
 	strcpy(T.nodes[0].data, "局部变量定义序列");
@@ -331,6 +350,7 @@ Status LocVarList(FILE * fp, CTree & T)
 	T.nodes[0].firstchild = NULL;		//生成局部变量定义序列结点
 	if (!LocVarDef(fp, c)) return ERROR;
 	if (!InsertChild(T, T.r, 1, c)) return ERROR;
+	w = gettoken(fp);
 	p = LocVarList(fp, c);
 	if (p == OK) InsertChild(T, T.r, 2, c);
 	if (!p) return ERROR;
@@ -368,17 +388,41 @@ Status LocVarDef(FILE * fp, CTree & T)
 	t.nodes[0].firstchild = NULL;
 	do
 	{
-		w = gettoken(fp);
+		w = gettoken(fp); strcpy(tokenText0, token_text);
 		if (w != IDENT) return ERROR;
 		Treeptr = (CTree *)malloc(sizeof(CTree));
 		if (!Treeptr) exit(OVERFLOW);
-		Treeptr->n = 1; Treeptr->r = 0;
-		Treeptr->nodes[0].data = (char *)malloc((strlen(token_text) + strlen("ID: ") + 1) * sizeof(char));
-		strcpy(Treeptr->nodes[0].data, "ID: ");
-		strcat(Treeptr->nodes[0].data, token_text);
-		Treeptr->nodes[0].indent = 1;
-		Treeptr->nodes[0].firstchild = NULL;		//生成变量名结点
 		w = gettoken(fp);
+		if (w == LBT)
+		{
+			strcat(tokenText0, "[");
+			if ((w = gettoken(fp)) == INT_CONST)
+			{
+				strcat(tokenText0, token_text);
+				if ((w = gettoken(fp)) == RBT)
+				{
+					strcat(tokenText0, "]");
+					Treeptr->n = 1; Treeptr->r = 0;
+					Treeptr->nodes[0].data = (char *)malloc((strlen(tokenText0) + strlen("Array: ") + 1) * sizeof(char));
+					strcpy(Treeptr->nodes[0].data, "Array: ");
+					strcat(Treeptr->nodes[0].data, tokenText0);
+					Treeptr->nodes[0].indent = 1;
+					Treeptr->nodes[0].firstchild = NULL;
+					w = gettoken(fp);
+				}
+				else return ERROR;
+			}
+			else return ERROR;
+		}
+		else
+		{
+			Treeptr->n = 1; Treeptr->r = 0;
+			Treeptr->nodes[0].data = (char *)malloc((strlen(tokenText0) + strlen("ID: ") + 1) * sizeof(char));
+			strcpy(Treeptr->nodes[0].data, "ID: ");
+			strcat(Treeptr->nodes[0].data, tokenText0);
+			Treeptr->nodes[0].indent = 1;
+			Treeptr->nodes[0].firstchild = NULL;		//生成变量名结点
+		}
 		if (!InsertChild(t, t.r, i++, *Treeptr)) return ERROR;
 	} while (w == COMMA);
 	if (w != SEMI) return ERROR;
@@ -395,7 +439,6 @@ Status LocVarDef(FILE * fp, CTree & T)
 Status StatList(FILE * fp, CTree & T)
 {
 	Status status; CTree c, t;
-	InitTree(T);
 	status = Statement(fp, c);
 	if (status == INFEASIBLE) return INFEASIBLE;
 	if (!status) return ERROR;
@@ -425,13 +468,14 @@ Status StatList(FILE * fp, CTree & T)
 Status Statement(FILE * fp, CTree & T)
 {
 	CTree c; CTree p; CTree q; CTree k;
-	InitTree(T);
+	print elem;
 	switch (w)
 	{
 	case IF://分析条件语句
 		w = gettoken(fp);
 		if (w != LP) return ERROR;
 		w = gettoken(fp);
+		if (w == RP) return ERROR;
 		if (!exp(fp, p, RP)) return ERROR;
 		c.n = 1; c.r = 0;
 		c.nodes[0].data = (char *)malloc((strlen("条件：") + 1) * sizeof(char));
@@ -440,7 +484,18 @@ Status Statement(FILE * fp, CTree & T)
 		c.nodes[0].firstchild = NULL;
 		InsertChild(c, c.r, 1, p);
 		w = gettoken(fp);
-		if (!Statement(fp, q)) return ERROR;
+		if (w == LBS)
+		{
+			if (!CompStat(fp, q)) return ERROR;
+		}
+		else
+		{
+			elem = { ++indent0,num };
+			printList.push(elem);
+			if (!Statement(fp, q)) return ERROR;
+			elem = { --indent0,num };
+			printList.push(elem);
+		}
 		p.n = 1; p.r = 0;
 		p.nodes[0].data = (char *)malloc((strlen("IF子句：") + 1) * sizeof(char));
 		strcpy(p.nodes[0].data, "IF子句：");
@@ -449,7 +504,19 @@ Status Statement(FILE * fp, CTree & T)
 		InsertChild(p, p.r, 1, q);
 		if (w == ELSE)
 		{
-			if (!Statement(fp, k)) return ERROR;
+			w = gettoken(fp);
+			if (w == LBS)
+			{
+				if (!CompStat(fp, k)) return ERROR;
+			}
+			else
+			{
+				elem = { ++indent0,num };
+				printList.push(elem);
+				if (!Statement(fp, k)) return ERROR;
+				elem = { --indent0,num };
+				printList.push(elem);
+			}
 			q.n = 1; q.r = 0;
 			q.nodes[0].data = (char *)malloc((strlen("ELSE子句：") + 1) * sizeof(char));
 			strcpy(q.nodes[0].data, "ELSE子句：");
@@ -468,8 +535,9 @@ Status Statement(FILE * fp, CTree & T)
 		else
 		{
 			T.n = 1; T.r = 0;
-			T.nodes[0].data = (char *)malloc((strlen("if语句") + 1) * sizeof(char));
-			strcpy(T.nodes[0].data, "if语句");
+			T.nodes[0].data = (char *)malloc((strlen("if语句：") + 1) * sizeof(char));
+			strcpy(T.nodes[0].data, "if语句：");
+			T.nodes[0].indent = 1;
 			T.nodes[0].firstchild = NULL;
 			InsertChild(T, T.r, 1, c);
 			InsertChild(T, T.r, 2, p);
@@ -478,12 +546,83 @@ Status Statement(FILE * fp, CTree & T)
 	case LBS:
 		if (!CompStat(fp, T)) return ERROR;
 		return OK;
+	case FOR:
+		//分析for语句
+		T.n = 1; T.r = 0;
+		T.nodes[0].data = (char *)malloc((strlen("for语句：") + 1) * sizeof(char));
+		strcpy(T.nodes[0].data, "for语句：");
+		T.nodes[0].indent = 1;
+		T.nodes[0].firstchild = NULL;
+		c.n = 1; c.r = 0;
+		c.nodes[0].data = (char *)malloc((strlen("初始表达式：") + 1) * sizeof(char));
+		strcpy(c.nodes[0].data, "初始表达式：");
+		c.nodes[0].indent = 1;
+		c.nodes[0].firstchild = NULL;
+		InsertChild(T, T.r, 1, c);
+		c.n = 1; c.r = 0;
+		c.nodes[0].data = (char *)malloc((strlen("终止条件：") + 1) * sizeof(char));
+		strcpy(c.nodes[0].data, "终止条件：");
+		c.nodes[0].indent = 1;
+		c.nodes[0].firstchild = NULL;
+		InsertChild(T, T.r, 2, c);
+		c.n = 1; c.r = 0;
+		c.nodes[0].data = (char *)malloc((strlen("循环表达式：") + 1) * sizeof(char));
+		strcpy(c.nodes[0].data, "循环表达式：");
+		c.nodes[0].indent = 1;
+		c.nodes[0].firstchild = NULL;
+		InsertChild(T, T.r, 3, c);
+		c.n = 1; c.r = 0;
+		c.nodes[0].data = (char *)malloc((strlen("for子句：") + 1) * sizeof(char));
+		strcpy(c.nodes[0].data, "for子句：");
+		c.nodes[0].indent = 1;
+		c.nodes[0].firstchild = NULL;
+		InsertChild(T, T.r, 4, c);
+		w = gettoken(fp);
+		if (w != LP) return ERROR;
+		w = gettoken(fp);
+		if (!exp(fp, c, SEMI)) return ERROR;
+		InsertChild(T, T.nodes[0].firstchild->child, 1, c);
+		w = gettoken(fp);
+		if (w == SEMI) return ERROR;
+		if (!exp(fp, c, SEMI)) return ERROR;
+		InsertChild(T, T.nodes[0].firstchild->next->child, 1, c);
+		w = gettoken(fp);
+		if (!exp(fp, c, RP)) return ERROR;
+		InsertChild(T, T.nodes[0].firstchild->next->next->child, 1, c);
+		w = gettoken(fp);
+		if (w == LBS)
+		{
+			if (!CompStat(fp, c)) return ERROR;
+		}
+		else
+		{
+			elem = { ++indent0,num };
+			printList.push(elem);
+			if (!Statement(fp, c)) return ERROR;
+			elem = { --indent0,num };
+			printList.push(elem);
+		}
+		InsertChild(T, T.nodes[0].firstchild->next->next->next->child, 1, c);
+		return OK;
 	case WHILE:
 		w = gettoken(fp);
 		if (w != LP) return ERROR;
+		w = gettoken(fp);
+		if (w == RP) return ERROR;
 		if (!exp(fp, c, RP)) return ERROR;
 		w = gettoken(fp);
-		if (!Statement(fp, p)) return ERROR;
+		if (w == LBS)
+		{
+			if (!CompStat(fp, p)) return ERROR;
+		}
+		else
+		{
+			elem = { ++indent0,num };
+			printList.push(elem);
+			if (!Statement(fp, p)) return ERROR;
+			elem = { --indent0,num };
+			printList.push(elem);
+		}
 		T.n = 1; T.r = 0;
 		T.nodes[0].data = (char *)malloc((strlen("while语句：") + 1) * sizeof(char));
 		strcpy(T.nodes[0].data, "while语句：");
@@ -492,6 +631,57 @@ Status Statement(FILE * fp, CTree & T)
 		InsertChild(T, T.r, 1, c);
 		InsertChild(T, T.r, 2, p);
 		return OK;
+	case DO:
+		T.n = 1; T.r = 0;
+		T.nodes[0].data = (char *)malloc((strlen("do-while语句：") + 1) * sizeof(char));
+		strcpy(T.nodes[0].data, "do-while语句：");
+		T.nodes[0].indent = 1;
+		T.nodes[0].firstchild = NULL;
+		w = gettoken(fp);
+		if (w == LBS)
+		{
+			if (!CompStat(fp, c)) return ERROR;
+		}
+		else
+		{
+			elem = { ++indent0,num };
+			printList.push(elem);
+			if (!Statement(fp, c)) return ERROR;
+			elem = { --indent0,num };
+			printList.push(elem);
+		}
+		InsertChild(T, T.r, 1, c);
+		if (w != WHILE) return ERROR;
+		w = gettoken(fp);
+		if (w != LP) return ERROR;
+		w = gettoken(fp);
+		if (w == RP) return ERROR;
+		if (!exp(fp, c, RP)) return ERROR;
+		InsertChild(T, T.r, 2, c);
+		w = gettoken(fp);
+		if (w != SEMI) return ERROR;
+		w = gettoken(fp);
+		return OK;
+	case CONTINUE:
+		T.n = 1; T.r = 0;
+		T.nodes[0].data = (char *)malloc((strlen("continue语句：") + 1) * sizeof(char));
+		strcpy(T.nodes[0].data, "continue语句：");
+		T.nodes[0].indent = 1;
+		T.nodes[0].firstchild = NULL;
+		w = gettoken(fp);
+		if (w != SEMI) return ERROR;
+		w = gettoken(fp);
+		return OK;
+	case BREAK:
+		T.n = 1; T.r = 0;
+		T.nodes[0].data = (char *)malloc((strlen("break语句：") + 1) * sizeof(char));
+		strcpy(T.nodes[0].data, "break语句：");
+		T.nodes[0].indent = 1;
+		T.nodes[0].firstchild = NULL;
+		w = gettoken(fp);
+		if (w != SEMI) return ERROR;
+		w = gettoken(fp);
+		return OK;
 	case RETURN:
 		T.n = 1; T.r = 0;
 		T.nodes[0].data = (char *)malloc((strlen("return语句：") + 1) * sizeof(char));
@@ -499,6 +689,7 @@ Status Statement(FILE * fp, CTree & T)
 		T.nodes[0].indent = 1;
 		T.nodes[0].firstchild = NULL;
 		w = gettoken(fp);
+		if (w == SEMI) return ERROR;
 		if (!exp(fp, c, SEMI)) return ERROR;
 		w = gettoken(fp);
 		InsertChild(T, T.r, 1, c);
@@ -507,8 +698,6 @@ Status Statement(FILE * fp, CTree & T)
 		if (!exp(fp, T, RP)) return ERROR;
 		w = gettoken(fp);
 		return OK;
-	case ELSE:
-		w = gettoken(fp);
 	case IDENT:
 	case INT_CONST:
 	case UNSIGNED_CONST:
@@ -523,6 +712,14 @@ Status Statement(FILE * fp, CTree & T)
 		return OK;
 	case RBS:
 		return INFEASIBLE;
+	case SEMI: 
+		T.n = 1; T.r = 0;
+		T.nodes[0].data = (char *)malloc((strlen("空语句") + 1) * sizeof(char));
+		strcpy(T.nodes[0].data, "空语句");
+		T.nodes[0].indent = 1;
+		T.nodes[0].firstchild = NULL;
+		w = gettoken(fp);
+		return OK;
 	default:
 		return ERROR;
 	}
@@ -547,7 +744,7 @@ Status exp(FILE * fp, CTree & T, int endsym)
 	strcpy(T.nodes[0].data, "表达式语句：");
 	T.nodes[0].indent = 1;
 	T.nodes[0].firstchild = NULL;
-	int error = 0;	//记录错误个数
+	int error = 0;
 	node->n = 1; node->r = 0;
 	node->nodes[0].data = (char *)malloc((strlen("#") + 1) * sizeof(char));
 	strcpy(node->nodes[0].data, "#");
@@ -570,17 +767,16 @@ Status exp(FILE * fp, CTree & T, int endsym)
 			w = gettoken(fp);
 		}
 		else if (w == PLUS || w == MINUS || w == MULTIPLY || w == DIVIDE ||
-			w == MOD || w == LP || w == RP || w == COMPARISON || w == ASSIGN
-			||w==BEGIN_END)
+			w == MOD || w == LP || w == RP || w == COMPARISON || w == ASSIGN ||
+			w == AND || w == OR || w == BEGIN_END)
 		{
 			node = (CTree *)malloc(sizeof(CTree));
-			InitTree(*node); GetTop(op, node);
+			GetTop(op, node);
 			if (w == BEGIN_END) strcpy(token_text, "#");
 			switch (precede(node->nodes[0].data, token_text))
 			{
 			case '<':
 				node = (CTree *)malloc(sizeof(CTree));
-				InitTree(*node);
 				node->nodes[0].data = (char *)malloc((strlen(token_text) + 1) * sizeof(char));
 				strcpy(node->nodes[0].data, token_text);
 				node->nodes[0].indent = 1;
@@ -623,17 +819,20 @@ char precede(char * a, char * b)
 	int i, j;		//指示运算符对应的编号
 	//定义一个二维数组，用于存放优先级
 	char precede[MAX_OP][MAX_OP]=
-	{//				+		-		*		/		（		）		=		>和<		==和!=		#
-	/* + */			'>',	'>',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',
-	/* - */			'>',	'>',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',
-	/* * */			'>',	'>',	'>',	'>',	'<',	'>',	'?',	'>',		'>',		'>',
-	/* / */			'>',	'>',	'>',	'>',	'<',	'>',	'?',	'>',		'>',		'>',
-	/* ( */			'<',	'<',	'<',	'<',	'<',	'=',	'?',	'>',		'>',		'>',
-	/* ) */			'>',	'>',	'>',	'>',	'>',	'?',	'?',	'>',		'>',		'>',
-	/* = */			'<',	'<',	'<',	'<',	'<',	'?',	'<',	'<',		'<',		'>',
-	/* >和< */		'<',	'<',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',
-	/* ==和!= */	'<',	'<',	'<',	'<',	'<',	'>',	'?',	'<',		'>',		'>',
-	/* # */			'<',	'<',	'<',	'<',	'<',	'?',	'<',	'<',		'<',		'='
+	{//				+		-		*		/		%		（		）		=		>和<		==和!=		#		&&		||
+	/* + */			'>',	'>',	'<',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* - */			'>',	'>',	'<',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* * */			'>',	'>',	'>',	'>',	'>',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* / */			'>',	'>',	'>',	'>',	'>',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* % */			'>',	'>',	'<',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* ( */			'<',	'<',	'<',	'<',	'<',	'<',	'=',	'?',	'<',		'<',		'>',	'<',	'<',
+	/* ) */			'>',	'>',	'>',	'>',	'>',	'>',	'?',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* = */			'<',	'<',	'<',	'<',	'<',	'<',	'?',	'<',	'<',		'<',		'>',	'<',	'<',
+	/* >和< */		'<',	'<',	'<',	'<',	'<',	'<',	'>',	'?',	'>',		'>',		'>',	'>',	'>',
+	/* ==和!= */	'<',	'<',	'<',	'<',	'<',	'<',	'>',	'?',	'<',		'>',		'>',	'>',	'>',
+	/* # */			'<',	'<',	'<',	'<',	'<',	'<',	'?',	'<',	'<',		'<',		'=',	'<',	'<',
+	/* && */		'<',	'<',	'<',	'<',	'<',	'<',	'>',	'>',	'<',		'<',		'>',	'>',	'>',
+	/* || */		'<',	'<',	'<',	'<',	'<',	'<',	'>',	'>',	'<',		'<',		'>',	'>',	'>'
 	};
 	switch (a[0])
 	{
@@ -645,22 +844,33 @@ char precede(char * a, char * b)
 		i = 2; break;
 	case '/':
 		i = 3; break;
-	case '(':
+	case '%':
 		i = 4; break;
-	case ')':
+	case '(':
 		i = 5; break;
+	case ')':
+		i = 6; break;
 	case '=':
-		if (a[1] == '=') i = 8;
-		else i = 6;
+		if (a[1] == '=') i = 9;
+		else i = 7;
 		break;
 	case '>':
 	case '<':
-		i = 7; break;
+		i = 8; break;
 	case '!':
-		if (a[1] == '=') i = 8;
+		if (a[1] == '=') i = 9;
+		else return '?';
 		break;
 	case '#':
-		i = 9;
+		i = 10;
+		break;
+	case '&':
+		if (a[1] == '&') i = 11;
+		else return '?';
+		break;
+	case '|':
+		if (a[1] == '|') i = 12;
+		else return '?';
 		break;
 	default:
 		return '?';
@@ -675,22 +885,33 @@ char precede(char * a, char * b)
 		j = 2; break;
 	case '/':
 		j = 3; break;
-	case '(':
+	case '%':
 		j = 4; break;
-	case ')':
+	case '(':
 		j = 5; break;
+	case ')':
+		j = 6; break;
 	case '=':
-		if (b[1] == '=') j = 8;
-		else j = 6;
+		if (b[1] == '=') j = 9;
+		else j = 7;
 		break;
 	case '>':
 	case '<':
-		j = 7; break;
+		j = 8; break;
 	case '!':
-		if (b[1] == '=') j = 8;
+		if (b[1] == '=') j = 9;
+		else return '?';
 		break;
 	case '#':
-		j = 9;
+		j = 10;
+		break;
+	case '&':
+		if (b[1] == '&') j = 11;
+		else return '?';
+		break;
+	case '|':
+		if (b[1] == '|') j = 12;
+		else return '?';
 		break;
 	default:
 		return '?';
